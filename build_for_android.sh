@@ -66,19 +66,20 @@ compatibleWithAndroid() {
 	chmod 755 $CURL_PATH/configure
 }
 
-# compile $1 ABI $2 SYSROOT $3 TOOLCHAIN $4 TARGET $5 CFLAGS
+# compile $1 ABI $2 SYSROOT $3 TOOLCHAIN $4 ARCHSPECIFICTOOLCHAIN $5 TARGET $6 CFLAGS
 compile() {
 	cd $CURL_PATH
 	ABI=$1
 	SYSROOT=$2
 	TOOLCHAIN=$3
-	TARGET=$4
-	CFLAGS=$5
+	ARCHSPECIFICTOOLCHAIN=$4
+	TARGET=$5
+	CFLAGS=$6
 	# https://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
 	export API=21
 	export CC=$TOOLCHAIN/$TARGET$API-clang
 	export CXX=$TOOLCHAIN/$TARGET$API-clang++
-	export LD=$TOOLCHAIN/ld
+	export LD=$ARCHSPECIFICTOOLCHAIN/ld
 	export AS=$TOOLCHAIN/llvm-as
 	export AR=$TOOLCHAIN/llvm-ar
 	export RANLIB=$TOOLCHAIN/llvm-ranlib
@@ -154,19 +155,19 @@ for abi in ${APP_ABI[*]}; do
 	case $abi in
 	armeabi-v7a)
 		# https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html#ARM-Options
-		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "armv7a-linux-androideabi" "-march=armv7-a -mfloat-abi=softfp -mfpu=neon -fPIC"
+		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/arm-linux-androideabi/bin" "armv7a-linux-androideabi" "-march=armv7-a -mfloat-abi=softfp -mfpu=neon -fPIC"
 		;;
 	x86)
 		# http://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "i686-linux-android" "-march=i686 -fPIC"
+		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/C" "i686-linux-android" "-march=i686 -fPIC"
 		;;
 	arm64-v8a)
 		# https://gcc.gnu.org/onlinedocs/gcc/AArch64-Options.html#AArch64-Options
-		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "aarch64-linux-android" "-march=armv8-a -fPIC"
+		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/aarch64-linux-android/bin" "aarch64-linux-android" "-march=armv8-a -fPIC"
 		;;
 	x86-64)
 		# http://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "x86_64-linux-android" "-march=x86-64 -fPIC"
+		compile $abi "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/sysroot" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/bin" "$NDK_ROOT/toolchains/llvm/prebuilt/$host-x86_64/x86_64-linux-android/bin" "x86_64-linux-android" "-march=x86-64 -fPIC"
 		;;
 	*)
 		echo "Error APP_ABI"
